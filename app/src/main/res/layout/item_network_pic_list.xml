@@ -5,7 +5,7 @@
               android:orientation="vertical"
     >
 
-    <com.android.volley.toolbox.NetworkImageView
+    <com.think.linxuanxuan.volleysample.CustomNetworkImageView
         android:id="@+id/iv_network_pic"
         android:layout_width="match_parent"
         android:layout_height="150dp"/>

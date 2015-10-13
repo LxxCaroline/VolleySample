@@ -1,13 +1,13 @@
 package com.think.linxuanxuan.volleysample;
 
 import android.content.Context;
+import android.graphics.drawable.BitmapDrawable;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AbsListView;
-import android.widget.BaseAdapter;
-import android.widget.ListView;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.ImageLoader;
@@ -15,15 +15,12 @@ import com.android.volley.toolbox.NetworkImageView;
 import com.android.volley.toolbox.Volley;
 
 
-public class NetworkPicListAdpater extends BaseAdapter implements AbsListView.OnScrollListener {
+public class NetworkPicListAdpater extends RecyclerView.Adapter<NetworkPicListAdpater.CustomViewHolder> {
     String[] urls = {"http://image.photophoto.cn/nm-6/018/030/0180300244.jpg",
             "http://pic.nipic.com/2007-11-09/2007119121849495_2.jpg",
             "http://pic1.ooopic.com/uploadfilepic/sheji/2009-08-09/OOOPIC_SHIJUNHONG_20090809ad6104071d324dda.jpg",
             "http://pic.nipic.com/2007-12-22/2007122215556437_2.jpg",
             "http://pic.nipic.com/2007-11-09/2007119123053767_2.jpg",
-            "http://pic.nipic.com/2007-12-16/20071216111124205_2.jpg",
-            "http://img1.3lian.com/img2008/06/019/13.jpg",
-            "http://pic.sucai.com/tp/foto/img/xpic1348.jpg",
             "http://pic.nipic.com/2007-11-08/2007118192311804_2.jpg",
             "http://pica.nipic.com/2007-11-09/200711912453162_2.jpg",
             "http://pic1.ooopic.com/uploadfilepic/sheji/2009-08-12/OOOPIC_SHIJUNHONG_2009081248f16747c1659ceb.jpg",
@@ -158,32 +155,38 @@ public class NetworkPicListAdpater extends BaseAdapter implements AbsListView.On
             "https://lh4.googleusercontent.com/-e9NHZ5k5MSs/URqvMIBZjtI/AAAAAAAAAbs/1fV810rDNfQ/s160-c/Yosemite" +
                     "%252520Tree.jpg"};
 
-
-    private Context context;
     private RequestQueue requestQueue;
     private ImageLoader.ImageCache imageCache;
     private ImageLoader imageLoader;
-    private ListView listview;
+    private RecyclerView recyclerView;
     private int firstVisibleItem, visibleCount;
     private boolean firstEnter = true;
+    private LinearLayoutManager manager;
+    private Context context;
 
-    public NetworkPicListAdpater(Context context, ListView listView) {
+
+    public NetworkPicListAdpater(Context context, RecyclerView recyclerView) {
         this.context = context;
         requestQueue = Volley.newRequestQueue(context);
         imageCache = new MyImageCache();
         imageLoader = new ImageLoader(requestQueue, imageCache);
-        this.listview = listView;
-        this.listview.setOnScrollListener(this);
+        this.recyclerView = recyclerView;
+        this.recyclerView.addOnScrollListener(new CustomScrollListener());
+        manager = (LinearLayoutManager) this.recyclerView.getLayoutManager();
     }
 
     @Override
-    public Object getItem(int position) {
-        return position;
+    public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+        Log.d("tag", "onCreateViewHolder");
+        View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_network_pic_list, parent, false);
+        return new CustomViewHolder(v);
     }
 
     @Override
-    public int getCount() {
-        return 65;
+    public void onBindViewHolder(CustomViewHolder holder, int position) {
+        Log.d("tag", "onBindViewHolder=====" + position);
+        holder.ivNetworkPic.setTag(urls[position]);
+        holder.ivNetworkPic.setLocalImageBitmap(((BitmapDrawable)context.getResources().getDrawable(R.drawable.ic_launcher)).getBitmap());
     }
 
     @Override
@@ -192,62 +195,54 @@ public class NetworkPicListAdpater extends BaseAdapter implements AbsListView.On
     }
 
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        Log.d("tag", "getview:" + position);
-        ViewHolder viewHolder;
-        if (convertView == null) {
-            convertView = LayoutInflater.from(context).inflate(R.layout.item_network_pic_list, null);
-            viewHolder = new ViewHolder();
-            viewHolder.ivNetworkPic = (NetworkImageView) convertView.findViewById(R.id.iv_network_pic);
-            convertView.setTag(viewHolder);
-        } else
-            viewHolder = (ViewHolder) convertView.getTag();
-
-        viewHolder.ivNetworkPic.setTag(urls[position]);
-        viewHolder.ivNetworkPic.setImageResource(R.mipmap.ic_launcher);
-
-        return convertView;
+    public int getItemCount() {
+        return urls.length;
     }
 
-    /**
-     * 对listview进行优化，当listview处于滚动时不加载任何图片，当静止时才加载。
-     * 与网上的不一样是这里采用volley加载图片，无法停止获取照片的操作。
-     *
-     * @param view
-     * @param scrollState
-     */
-    @Override
-    public void onScrollStateChanged(AbsListView view, int scrollState) {
-        if (scrollState == SCROLL_STATE_IDLE) {
-            loadPic(firstVisibleItem, visibleCount);
+    class CustomViewHolder extends RecyclerView.ViewHolder {
+        public CustomNetworkImageView ivNetworkPic;
+
+        public CustomViewHolder(View itemView) {
+            super(itemView);
+            ivNetworkPic = (CustomNetworkImageView) itemView.findViewById(R.id.iv_network_pic);
+            ivNetworkPic.setDefaultImageResId(R.mipmap.ic_launcher);
+            ivNetworkPic.setErrorImageResId(R.mipmap.ic_launcher);
         }
     }
 
-    @Override
-    public void onScroll(AbsListView view, int firstVisibleItem, int visibleItemCount, int totalItemCount) {
-        this.firstVisibleItem = firstVisibleItem;
-        visibleCount = visibleItemCount;
-        // 下载的任务应该由onScrollStateChanged里调用，但首次进入程序时onScrollStateChanged并不会调用，
-        // 因此在这里为首次进入程序开启下载任务。
-        if (firstEnter && visibleItemCount > 0) {
-            loadPic(firstVisibleItem, visibleItemCount);
-            firstEnter = false;
-        }
-    }
+    class CustomScrollListener extends RecyclerView.OnScrollListener {
 
-    private void loadPic(int first, int count) {
-        for (int i = first; i < first + count; i++) {
-            NetworkImageView imageView = (NetworkImageView) listview.findViewWithTag(urls[i]);
-            //只有未设置图片的才需要设置
-            if (imageView != null) {
-                imageView.setImageUrl(urls[i], imageLoader);
-                imageView.setDefaultImageResId(R.mipmap.ic_launcher);
-                imageView.setErrorImageResId(R.mipmap.ic_launcher);
+        /**
+         * 对listview进行优化，当listview处于滚动时不加载任何图片，当静止时才加载。
+         * 与网上的不一样是这里采用volley加载图片，无法停止获取照片的操作。
+         */
+        @Override
+        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+            if (newState == RecyclerView.SCROLL_STATE_IDLE) {
+                loadPic(firstVisibleItem, visibleCount);
             }
         }
-    }
 
-    class ViewHolder {
-        public NetworkImageView ivNetworkPic;
+        @Override
+        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+            firstVisibleItem = manager.findFirstVisibleItemPosition();
+            visibleCount = manager.findLastVisibleItemPosition() - firstVisibleItem + 1;
+            //下载的任务应该由onScrollStateChanged里调用，但首次进入程序时onScrollStateChanged并不会调用，
+            // 因此在这里为首次进入程序开启下载任务。
+            if (firstEnter && visibleCount > 0) {
+                loadPic(firstVisibleItem, visibleCount);
+                firstEnter = false;
+            }
+        }
+
+        private void loadPic(int first, int count) {
+            Log.d("tag", "*********************" + first + "," + count);
+            for (int i = first; i < first + count; i++) {
+                NetworkImageView imageView = (NetworkImageView) recyclerView.findViewWithTag(urls[i]);
+                if (imageView != null) {
+                    imageView.setImageUrl(urls[i], imageLoader);
+                }
+            }
+        }
     }
 }

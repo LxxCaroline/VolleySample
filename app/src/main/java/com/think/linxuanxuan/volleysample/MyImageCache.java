@@ -14,7 +14,7 @@ public class MyImageCache implements ImageLoader.ImageCache {
     public MyImageCache() {
 //        cache = new LruCache<String, Bitmap>(200 * 1024) {
 //        cache = new LruCache<String, Bitmap>(5 * 1024) {
-        cache = new LruCache<String, Bitmap>((int) Runtime.getRuntime().maxMemory() / 8) {
+        cache = new LruCache<String, Bitmap>((int) Runtime.getRuntime().maxMemory() / 2) {
 
             @Override
             protected void entryRemoved(boolean evicted, String key, Bitmap oldValue, Bitmap newValue) {
