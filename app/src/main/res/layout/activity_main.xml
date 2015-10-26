@@ -9,52 +9,23 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <EditText
+        android:layout_width="fill_parent"
+        android:id="@+id/edittext"
         android:layout_height="wrap_content"
-        android:text="VolleySample" />
+        android:text="http://www.baidu.com"/>
 
     <Button
-        android:id="@+id/btnStringRequest1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onClick"
-        android:text="StringRequest1" />
-
-    <TextView
-        android:id="@+id/tvResponse1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ellipsize="middle"
-        android:singleLine="true" />
+        android:onClick="shouldCache"
+        android:text="should cache" />
 
     <Button
-        android:id="@+id/btnStringRequest2"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:onClick="onClick"
-        android:text="StringRequest2" />
-
-    <TextView
-        android:id="@+id/tvResponse2"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ellipsize="middle"
-        android:singleLine="true" />
-
-    <Button
-        android:id="@+id/btnJsonRequest1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onClick"
-        android:text="JsonRequest1" />
-
-    <TextView
-        android:id="@+id/tvJsonRequest1"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:ellipsize="middle"
-        android:singleLine="true" />
+        android:onClick="notCache"
+        android:text="not cached" />
 
     <Button
         android:id="@+id/btnStartActivity"

@@ -177,14 +177,12 @@ public class NetworkPicListAdpater extends RecyclerView.Adapter<NetworkPicListAd
 
     @Override
     public CustomViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        Log.d("tag", "onCreateViewHolder");
         View v = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_network_pic_list, parent, false);
         return new CustomViewHolder(v);
     }
 
     @Override
     public void onBindViewHolder(CustomViewHolder holder, int position) {
-        Log.d("tag", "onBindViewHolder=====" + position);
         holder.ivNetworkPic.setTag(urls[position]);
         holder.ivNetworkPic.setLocalImageBitmap(((BitmapDrawable)context.getResources().getDrawable(R.drawable.ic_launcher)).getBitmap());
     }
@@ -236,7 +234,6 @@ public class NetworkPicListAdpater extends RecyclerView.Adapter<NetworkPicListAd
         }
 
         private void loadPic(int first, int count) {
-            Log.d("tag", "*********************" + first + "," + count);
             for (int i = first; i < first + count; i++) {
                 NetworkImageView imageView = (NetworkImageView) recyclerView.findViewWithTag(urls[i]);
                 if (imageView != null) {
